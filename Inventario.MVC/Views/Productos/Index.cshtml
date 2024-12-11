@@ -1,0 +1,334 @@
+@{
+  ViewData["Title"] = "Productos";
+}
+
+@* NUEVO/ACTUALIZAR PRODUCTO *@
+<div class="modal fade" id="modal" aria-labelledby="modalProductosLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitulo">
+          @ViewData["Title"]
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+        <p class="mb-3 mt-0 fw-bold"> Los campos marcados con un asterisco (<span class="text-danger">*</span>) son obligatorios </p>
+
+        <div class="alert alert-danger d-none" id="errorResumen" role="alert">
+
+        </div>
+
+        <form id="formModal" class="row gap-y-1" >
+
+          <input type="hidden" name="id" id="productoId" value="0" />
+
+          <div class="form-group col-12 col-md-6 mb-0">
+            <label for="Nombre" class="form-label required" title="Campo requerido">
+              Nombre
+            </label>
+            <input type="text" name="Nombre" class="form-control text-dark" id="Nombre" placeholder="Ingrese un nombre" autocomplete="off">
+          </div>
+        
+          <div class="form-group col-12 col-md-6 mb-3">
+            <label for="Precio" class="form-label required" title="Campo requerido">
+              Precio
+            </label>
+            <input type="number" name="Precio" class="form-control text-dark " id="Precio" min="0.01" placeholder="Ingrese el precio" autocomplete="off">
+
+          </div>
+
+          <div class="form-group col-12">
+            <label for="Descripcion" class="form-label required" title="Campo requerido">
+              Descripcion
+            </label>
+            <textarea rows="3" name="Descripcion" class="form-control text-dark " id="Descripcion" placeholder="Ingrese una descripcion" autocomplete="off"></textarea>
+            <p class="form-text small text-danger" id="errorDescripcion"></p>
+          </div>
+
+          <div class="form-group col-md-6 col-12 mb-3">
+            <label for="CategoriaID" class="form-label required" title="Campo requerido">
+              Categoria
+            </label>
+
+            <select 
+              asp-items="@ViewBag.Categorias" 
+              name="CategoriaID" id="CategoriaID" class="form-control text-dark"
+            >
+            </select>
+          </div>
+
+          <div class="form-group col-md-6 col-12 ">
+            <label for="ImagenUrl" class="form-label">
+              Imagen
+            </label>
+            <input type="url" name="ImagenUrl" placeholder="Ingrese url de una imagen" class="form-control text-dark " id="ImagenUrl" />
+            @* <p class="form-text small text-danger" id="errorDescripcion"></p> *@
+          </div>
+
+          <div class="form-group col-12">
+            <label for="CodigoBarra" class="form-label required" title="Campo requerido">
+              Codigo de barra
+            </label>
+            
+            <div class="input-group">
+              <input type="text" name="CodigoBarra" class="form-control text-dark text-uppercase" id="CodigoBarra" placeholder="Ingrese el codigo de barra del producto" autocomplete="off" disabled>
+
+              <button type="button" class="btn btn-dark"  data-bs-backdrop="static"  data-bs-target="#modalCodigoBarra" data-bs-toggle="modal">
+                Leer codigo
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button class="btn btn-primary" onclick="guardarProducto()">
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@* LECTURA CODIGO DE BARRA *@
+<div class="modal fade" id="modalCodigoBarra" aria-labelledby="exampleModalCodigoBarra" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCodigoBarra">Leer codigo de barras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="reader" class="w-full"></div>
+      </div>
+      @* <div class="modal-footer">
+        <button class="btn btn-primary" data-bs-target="#modal" data-bs-toggle="modal">Back to first</button>
+      </div> *@
+    </div>
+  </div>
+</div>
+
+@* ENTRADA SALIDA/MOVIMIENTO *@
+<div class="modal fade" id="modalMovimientos" tabindex="-1" aria-labelledby="modalMovimientoLabel" >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitulo">
+            Movimiento
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3 mt-0 fw-bold"> Los campos marcados con un asterisco (<span class="text-danger">*</span>) son obligatorios </p>
+
+          <div class="alert alert-danger d-none" id="errorResumen" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use  xlink:href="#exclamation-triangle-fill"/></svg>
+            <span>
+              
+            </span>
+          </div>
+
+          <form id="formModal" class="row gap-y-1">
+
+            <input type="hidden" name="id" id="movimientoId" value="0" />
+            
+            <input type="hidden" name="id" id="stockActual" value="0" />
+            <input type="hidden" name="id" id="TipoMovimiento" value="" />
+            <input type="hidden" name="id" id="movimientoProductoId" value="" />
+
+            @* <div class="form-group col-12 mb-3">
+              <label for="productoId" class="form-label" title="Campo requerido">
+                Producto
+              </label>
+              @Html.DropDownList("Productos", null, htmlAttributes: new { id = "productoId", @class = "form-control text-dark" }) *@
+              @* <select 
+                asp-items="@ViewBag.Productos" 
+                name="productoId" id="productoId" class="form-control text-dark"
+              >
+              </select> *@
+
+            @* </div> *@
+    
+            
+            <div class="form-group col-12 mb-3">
+              <label for="Cantidad" class="form-label required" title="Campo requerido"> 
+                Stock/Cantidad
+              </label>
+              <input type="number" name="Cantidad" class="form-control text-dark " id="Cantidad" placeholder="30" autocomplete="off">
+            </div>
+
+            @* <div class="form-group col-12 mb-3">
+              <label for="tipoMovimiento" class="form-label" title="Campo requerido">
+                Tipos Movimientos
+              </label>
+
+              <select 
+                asp-items="@ViewBag.TiposMovimientos" 
+                name="tipoMovimiento" id="tipoMovimiento" class="form-control text-dark"
+              >
+              </select>
+            </div> *@
+
+          </form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button class="btn btn-primary" onclick="guardarMovimiento()">
+            Guardar cambios
+          </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+  </symbol>
+  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+  </symbol>
+  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+  </symbol>
+</svg>
+
+
+<div class="panel text-dark border border-gray rounded-lg overflow-hidden mb-3"> 
+  
+  <header class="card-header p-3 d-flex justify-content-between align-items-baseline">
+    <div class="">
+      <h1 class="h3 mb-0 fw-bold text-dark"> @ViewData["Title"] </h1>
+      <small id="cantidad_text" class="cantidad_text text-uppercase text-muted placeholder-glow">
+        <span class="placeholder w-50 rounded-2"></span>
+      </small>
+    </div>
+
+    <button type="button" class="btn btn-dark d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modal">
+      <i class='bx bx-plus'></i>
+      <span class="d-none d-sm-inline-block text-uppercase small"> Nuevo producto </span>
+    </button>
+
+  </header>
+
+  <div class="row d-flex justify-content-between bg-white m-0 py-3">
+    <div class="col-sm-6 col-lg-3">
+      @* <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter">
+      %
+      </button> *@
+    </div>
+
+
+    <div class="col-sm-6 col-lg-5">
+      <div class="input-group">
+        <input type="search" class="form-control text-uppercase" placeholder="Buscar producto" id="buscador">
+        <label for="buscador" class="input-group-text bg-light px-3">
+          <span class="text-muted" title="Buscador">
+            <i class='bx bx-search-alt-2'></i>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="table text-dark overflow-hidden mb-0 pb-0">
+      <thead class="border-top border-bottom thead">
+        <tr class="align-middle">
+          @* <th scope="col" class="border-0 "> 
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input"   id="seleccionar_todos">
+            </div>
+           
+          </th> *@
+          <th scope="col" class="border-0 ocultar-sm">Imagen</th>
+          <th scope="col" class="border-0">Nombre</th>
+          <th scope="col" class="border-0 ocultar-sm">Descripcion</th>
+          <th scope="col" class="border-0 ocultar-md">Precio</th>
+          <th scope="col" class="border-0 ocultar-md">Stock</th>
+          <th scope="col" class="border-0 ocultar-md">Categoria</th>
+          <th scope="col" class="border-0"> </th>
+        </tr>
+      </thead>
+
+      <tbody id="tBody">
+        <tr class="placeholder-glow fs-3">
+          <td class="ocultar-sm">
+            <span style="height: 75px" class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td>
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td class="ocultar-sm">
+            <span class="placeholder w-75 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-25 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-25 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-25 rounded-2"></span>
+          </td>
+          <td class="w-25 text-end">
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+        </tr>
+ 
+        <tr class="placeholder-glow fs-3">
+          <td class="ocultar-sm">
+            <span style="height: 75px" class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td>
+            <span class="placeholder w-75 rounded-2"></span>
+          </td>
+          <td class="ocultar-sm">
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-25 rounded-2"></span>
+          </td>
+          <td class="ocultar-md">
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+          <td class="w-25 text-end">
+            <span class="placeholder w-25 rounded-2"></span>
+            <span class="placeholder w-50 rounded-2"></span>
+          </td>
+        </tr>
+
+       
+      </tbody>
+
+      <tfoot id="tFooter">
+        <tr class="">
+          <td class="text-muted border-0 d-none" colspan="6">
+            
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/medium-zoom/1.0.8/medium-zoom.min.js"></script>
+  
+  @* Powered by ScanApp *@
+  <script src="~/lib/html5-qrcode/html5-qrcode.min.js"></script>
+
+  <script src="~/js/productos-1.0.0.js"></script>
+  <script src="~/js/movimientos-productos-1.0.0.js"></script>
+}
