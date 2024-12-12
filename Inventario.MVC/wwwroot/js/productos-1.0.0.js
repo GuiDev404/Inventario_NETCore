@@ -67,20 +67,20 @@ function mostrarProductos (){
             acciones = `
               <td class="text-end">
                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="nuevoMovimiento(${producto.id}, 0, ${producto.cantidad})">
-                  <span class="d-none d-sm-inline-block text-uppercase small"> + </span>
+                  <i class='bx bx-list-plus'></i>
                 </button>
                 
-                <button type="button" ${producto.cantidad === 0 ? 'disabled' : ''} class="btn btn-outline-secondary btn-sm" onclick="nuevoMovimiento(${producto.id}, 1, ${producto.cantidad})">
-                  <span class="d-none d-sm-inline-block text-uppercase small"> - </span>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="nuevoMovimiento(${producto.id}, 1, ${producto.cantidad})"  ${producto.cantidad === 0 ? 'disabled' : ''}>
+                  <i class='bx bx-list-minus' ></i>
                 </button>
 
                 <button type="button" class="btn btn-primary btn-sm" onclick="buscarProducto(${producto.id})">
-                  <i class="far fa-edit small"></i>
-                  <span class="d-none d-sm-inline-block text-uppercase small"> Editar </span>
+                  <i class='bx bx-edit'></i>
+                  <span class="d-none d-md-inline-block text-uppercase small"> Editar </span>
                 </button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(${producto.id}, true)">
-                  <i class="fas fa-trash-alt small"></i>
-                  <span class="d-none d-sm-inline-block text-uppercase small"> Deshabilitar </span>
+                  <i class='bx bx-trash'></i>
+                  <span class="d-none d-md-inline-block text-uppercase small"> Deshabilitar </span>
                 </button>
               </td>
             `
@@ -91,7 +91,7 @@ function mostrarProductos (){
               <td class="ocultar-sm text-center ${classesCellDeshabilitada}">
                 <img src="${producto.imagenUrl || './imgs/placeholder_img.jpg'}" width="75" class="rounded-2" alt="${producto.descripcion}" title="${producto.descripcion}" data-zoomable />
                 <p class="${classesCellDeshabilitada} text-muted flex align-items-center" style="font-size: .8rem;">
-                  <i class='bx bx-barcode' ></i>
+                  <i class='bx bx-barcode'></i>
                   <span class="">  ${producto.codigoBarra} </span>
                 </p>
               </td>
@@ -156,7 +156,7 @@ function buscarProducto (id){
 
       if(response.success){
         const producto = response.data;
-
+        console.log(producto);
         $('#productoId').val(producto.id)
         $('#Nombre').val(producto.nombre)
         $('#Descripcion').val(producto.descripcion)
@@ -185,9 +185,10 @@ function guardarProducto (){
   const data = new FormData(form_modal)
 
   const producto = Object.fromEntries(data.entries());
+  producto.CodigoBarra = $('#CodigoBarra').val()
+
   if(!$("#modal #formModal").valid()) return;
 
-  console.log(producto);
   if (producto.id === '0'){
     
     console.log(producto);
@@ -237,46 +238,21 @@ function guardarProducto (){
   }
 }
 
-
-// LECTURA CODIGO DE BARRAS 
-function lecturaCorrecta(codigoTexto, codigoObjeto) {
-  // handle the scanned code as you like, for example:
-  console.log(`Code matched = ${codigoTexto}`, codigoObjeto);
-  Swal.fire(codigoTexto);
-}
-
-function errorLectura(error) {
-  // handle scan failure, usually better to ignore and keep scanning.
-  // for example:
-  //console.warn(`Code scan error = ${error}`);
-}
-
-let html5QrcodeScanner = new Html5QrcodeScanner(
-  "reader",
-  { fps: 10, qrbox: { width: 250, height: 250} },
-  /* verbose= */ false);
-
-html5QrcodeScanner.render(lecturaCorrecta, errorLectura);
-
 // EVENTOS E INICIALIZACION
 
 $(document).ready(function() {
-  let limpiarFormulario = true;
   $('#modalCodigoBarra').on('show.bs.modal', () => {
-    limpiarFormulario = false;
-    $('#modal').modal('hide')
+    
+    $('#modal').css('z-index', 'auto')
   });
   
   $('#modalCodigoBarra').on('hide.bs.modal', () => {
-    limpiarFormulario = true;
-    $('#modal').modal('show');
+    
+    $('#modal').css('z-index', '')
   });
 
   $("#modal").on('hide.bs.modal', function(event){
-    
-    if (limpiarFormulario){
-      clearForm()
-    }
+    clearForm()
   });
   
   $("#modal").on('show.bs.modal', function(){

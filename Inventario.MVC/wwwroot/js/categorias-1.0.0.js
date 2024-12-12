@@ -63,12 +63,12 @@ function mostrarCategorias (){
             acciones = `
               <td class="text-end">
                 <button type="button" class="btn btn-primary btn-sm" onclick="buscarCategoria(${categoria.id})">
-                  <i class="far fa-edit small"></i>
-                  <span class="d-none d-sm-inline-block text-uppercase small"> Editar </span>
+                  <i class='bx bx-edit'></i>
+                  <span class="d-none d-md-inline-block text-uppercase small"> Editar </span>
                 </button>
                 <button type="button" class="btn btn-danger btn-sm" onclick="eliminarCategoria(${categoria.id})">
-                  <i class="fas fa-trash-alt small"></i>
-                  <span class="d-none d-sm-inline-block text-uppercase small"> Deshabilitar </span>
+                  <i class='bx bx-trash'></i>
+                  <span class="d-none d-md-inline-block text-uppercase small"> Deshabilitar </span>
                 </button>
               </td>
             `

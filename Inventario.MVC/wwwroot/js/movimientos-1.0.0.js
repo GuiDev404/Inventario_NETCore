@@ -1,3 +1,4 @@
+
 const TIPOS_MOVIMIENTOS = ['Entrada', 'Salida']
 
 function mostrarMovimientos (){
@@ -36,10 +37,10 @@ function mostrarMovimientos (){
 
         response.data.forEach(movimiento=> {
           const classesCellDeshabilitada = movimiento.eliminado ? 'opacity-50 text-decoration-line-through' : ''
-          const classPorTipo = movimiento.tipoMovimiento === 0 ? 'bg-success' : 'bg-danger'
+          const badgePorTipo = movimiento.tipoMovimiento === 0 ? 'bg-success' : 'bg-danger'
 
           t_body.append(`
-            <tr class="${classPorTipo} bg-opacity-50">
+            <tr class="" >
               <td class="ocultar-sm text-center ${classesCellDeshabilitada}">
                 <span class="">  ${movimiento.producto.nombre} </span>
                 
@@ -49,7 +50,9 @@ function mostrarMovimientos (){
                 </p>
               </td>
               <td class="${classesCellDeshabilitada}">
-                 ${TIPOS_MOVIMIENTOS[movimiento.tipoMovimiento]}
+                 <span class="badge ${badgePorTipo}">
+                  ${TIPOS_MOVIMIENTOS[movimiento.tipoMovimiento]}
+                 </span>
               </td>
               <td class="ocultar-sm ${classesCellDeshabilitada}">
                  ${movimiento.stock}

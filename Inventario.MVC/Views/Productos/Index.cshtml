@@ -75,7 +75,10 @@
             <div class="input-group">
               <input type="text" name="CodigoBarra" class="form-control text-dark text-uppercase" id="CodigoBarra" placeholder="Ingrese el codigo de barra del producto" autocomplete="off" disabled>
 
-              <button type="button" class="btn btn-dark"  data-bs-backdrop="static"  data-bs-target="#modalCodigoBarra" data-bs-toggle="modal">
+              @* <button type="button" class="btn btn-dark"  data-bs-backdrop="static"  data-bs-target="#modalCodigoBarra" data-bs-toggle="modal">
+                Leer codigo
+              </button> *@
+              <button type="button" class="btn btn-dark" onclick="leerCodigoDeBarra('#CodigoBarra')" >
                 Leer codigo
               </button>
             </div>
@@ -104,7 +107,40 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div id="reader" class="w-full"></div>
+        <input type="hidden" id="tempInputId" />
+
+        <nav>
+          <div class="nav nav-tabs" id="tabsScanners" role="tablist">
+            
+              <button class="nav-link active" id="nav-camara-tab" data-bs-toggle="tab" data-bs-target="#camara-tab" type="button" role="tab" aria-controls="camara-tab" aria-selected="true">Camara lectora</button>
+          
+            
+              <button class="nav-link" id="nav-img-tab" data-bs-toggle="tab" data-bs-target="#img-tab" type="button" role="tab" aria-controls="img-tab" aria-selected="false">Imagen</button>
+          
+          </div>
+        </nav>
+
+        <div class="tab-content" id="tabsScannersContent">
+          <div class="tab-pane fade show active" id="camara-tab" role="tabpanel" aria-labelledby="nav-camara-tab">
+              <div class="text-center">
+                <img src="./imgs/barcode_reader_illustration.svg" width="50" class="my-3 mx-auto" alt="ilustracion lector codigo de barra" id="imagenReferencial" />
+              </div>
+
+              <div id="reader" class="w-full"></div>
+              <div class="mt-2 w-full">
+                <select class="form-select" id="listaCamaras" onchange="camaraSeleccionada(this)">
+                    
+                </select>
+                @* <button class="btn btn-danger w-100 mt-2" onclick="detenerCamara()">Detener camara</button> *@
+              </div>
+          </div>
+          <div class="tab-pane fade" id="img-tab" style="min-height: 150px;" role="tabpanel" aria-labelledby="nav-img-tab">
+            <div id="reader-file" width="100" height="600" class="mt-2"></div>
+            <input type="file" id="qr-input-file" class="form-control mt-2" accept="image/*">
+          </div>
+        </div>
+
+
       </div>
       @* <div class="modal-footer">
         <button class="btn btn-primary" data-bs-target="#modal" data-bs-toggle="modal">Back to first</button>
@@ -188,6 +224,7 @@
 </div>
 
 
+
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
@@ -228,12 +265,16 @@
 
     <div class="col-sm-6 col-lg-5">
       <div class="input-group">
-        <input type="search" class="form-control text-uppercase" placeholder="Buscar producto" id="buscador">
         <label for="buscador" class="input-group-text bg-light px-3">
           <span class="text-muted" title="Buscador">
             <i class='bx bx-search-alt-2'></i>
           </span>
         </label>
+        <input type="search" class="form-control text-uppercase" placeholder="Buscar producto" id="buscador">
+        <button type="button" class="btn btn-dark d-flex align-items-center gap-2" id="btn_search_by_barcode">
+          <i class='bx bx-barcode small'></i>
+          <span class="text-uppercase small"> Leer codigo </span>
+        </button>
       </div>
     </div>
   </div>
@@ -328,6 +369,7 @@
   
   @* Powered by ScanApp *@
   <script src="~/lib/html5-qrcode/html5-qrcode.min.js"></script>
+  <script src="~/js/lector-codigo-barras.js"></script>
 
   <script src="~/js/productos-1.0.0.js"></script>
   <script src="~/js/movimientos-productos-1.0.0.js"></script>

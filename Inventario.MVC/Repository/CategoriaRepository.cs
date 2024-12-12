@@ -29,7 +29,7 @@ public class CategoriaRepository : ICategoriaRepository
     public async Task<bool> ExistCategoryByName(string nombre, int? id)
     {
       if (id is not null) {
-        return await _context.Categorias.AnyAsync(p=> p.Nombre == nombre && p.Id != id);
+        return await _context.Categorias.AnyAsync(p=>  p.Nombre == nombre && p.Id != id);
       }
 
       return await _context.Categorias.AnyAsync(p=> p.Nombre == nombre);
@@ -63,5 +63,5 @@ public class CategoriaRepository : ICategoriaRepository
     }
 
     public Task<bool> ExistCategoriaInProducto(int categoryId)
-      => _context.Productos.AnyAsync(p=> p.CategoriaID == categoryId);
+      => _context.Productos.AnyAsync(p=> !p.Eliminado && p.CategoriaID == categoryId);
 }
