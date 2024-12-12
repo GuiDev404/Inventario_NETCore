@@ -28,24 +28,24 @@ function guardarMovimiento (event){
   const tipoMovimiento = $("#TipoMovimiento").val()
   const stockActual = $('#stockActual').val();
 
-  // if(!$("#modalMovimientos #formModal").valid()) return;
+  if(!$("#modalMovimientos #formModal").valid()) return;
   
-  // if (Number(tipoMovimiento) === 1 && Number(cantidad) > Number(stockActual)){
-  //   $('#errorResumen').removeClass("d-none")
-  //   $('#errorResumen span').text('La cantidad de salida debe ser menor que el stock actual')
+  if (Number(tipoMovimiento) === 1 && Number(cantidad) > Number(stockActual)){
+    $('#errorResumen').removeClass("d-none")
+    $('#errorResumen span').text('La cantidad de salida debe ser menor que el stock actual')
       
-  //   setTimeout(() => {
-  //     $('#errorResumen').addClass("d-none")
-  //     $('#errorResumen span').text('')
-  //   }, 3000);
-  //   return 
-  // }
+    setTimeout(() => {
+      $('#errorResumen').addClass("d-none")
+      $('#errorResumen span').text('')
+    }, 3000);
+    return 
+  }
 
   $.ajax({
     url: '/Movimientos/NuevoMovimiento',
     data: {
       TipoMovimiento: tipoMovimiento,
-      Cantidad: cantidad,
+      Cantidad: cantidad || 0,
       ProductoID: productoId
     },
     type: 'POST',

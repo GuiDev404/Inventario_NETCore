@@ -187,7 +187,7 @@ function guardarCategoria (){
       },
       error: function (error){
         if (error.status === 400 && error.responseJSON !== null){
-          console.log(error.responseJSON.data);
+          error.responseJSON.data.forEach(syncBackendError)
           return;
         } else {
           toast({ type: 'error', title: 'Edicion categoria', message: error.responseJSON.message })

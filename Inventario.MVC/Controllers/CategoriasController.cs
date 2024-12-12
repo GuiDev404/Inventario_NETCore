@@ -1,5 +1,6 @@
 using Inventario.MVC.Data;
 using Inventario.MVC.DTOs;
+using Inventario.MVC.Filters;
 using Inventario.MVC.Interfaces;
 using Inventario.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,7 @@ public class CategoriasController : Controller {
       });
     }
 
+    [ServiceFilter(typeof(FiltroValidacionModelos))]
     public async Task<IActionResult> CreateCategoria(CategoriaCreateDTO categoriaCreateDTO) {
       bool alreadyExist = await _categoriaRepository.ExistCategoryByName(categoriaCreateDTO.Nombre);
 
@@ -80,7 +82,8 @@ public class CategoriasController : Controller {
         Success = true
       });
     }
- 
+
+    [ServiceFilter(typeof(FiltroValidacionModelos))]
     public async Task<IActionResult> EditCategoria(int id, CategoriaUpdateDTO categoriaUpdateDTO) {
 
       bool alreadyExist = await _categoriaRepository.ExistCategoryByName(categoriaUpdateDTO.Nombre, id);

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 public class CategoriaDTO {
   public int Id { get; set; }
   public string Nombre{ get; set; }
@@ -5,6 +7,7 @@ public class CategoriaDTO {
 }
 
 public class CategoriaCreateDTO {
+  [Required(ErrorMessage = "El nombre de la categoria es requerido")]
   public string Nombre { get; set; }
 }
 

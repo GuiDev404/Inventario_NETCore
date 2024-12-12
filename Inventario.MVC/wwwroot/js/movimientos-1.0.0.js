@@ -1,4 +1,3 @@
-
 const TIPOS_MOVIMIENTOS = ['Entrada', 'Salida']
 
 function mostrarMovimientos (){

@@ -4,6 +4,7 @@ using Inventario.MVC.Data;
 using Inventario.MVC.Interfaces;
 using Inventario.MVC.Mappers;
 using Inventario.MVC.Repository;
+using Inventario.MVC.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<IMovimientoRepository, MovimientoRepository>();
 
+builder.Services.AddScoped<FiltroValidacionModelos>();
 
 var app = builder.Build();
 

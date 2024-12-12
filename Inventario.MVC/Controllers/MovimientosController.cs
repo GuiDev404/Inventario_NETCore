@@ -1,9 +1,8 @@
-using Humanizer;
 using Inventario.MVC.DTOs;
+using Inventario.MVC.Filters;
 using Inventario.MVC.Interfaces;
 using Inventario.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Inventario.MVC.Controllers;
 
@@ -23,23 +22,8 @@ public class MovimientosController : Controller
       return View();
     }
 
+    [ServiceFilter(typeof(FiltroValidacionModelos))]
     public async Task<IActionResult> NuevoMovimiento (MovimientoCreateDTO movimientoCreateDTO) {
-      if (!ModelState.IsValid) {
-          var errors = ModelState
-            .Where(m => m.Value.Errors.Any())
-            .Select(m => new {
-              Field = m.Key,
-              Messages = m.Value.Errors.Select(e => e.ErrorMessage)
-            })
-            .ToList();
-          
-          return BadRequest(new ApiResponse<object> {
-            Success = false,
-            Message = "Complete los campos requeridos",
-            Data = errors
-          });
-      }
-
       var movimiento = _movimientoMapper.Map(movimientoCreateDTO);
       Movimiento? movimientoSaved = await _movimientoRepository.NewMovimiento(movimiento);
 

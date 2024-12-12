@@ -1,5 +1,6 @@
 using Inventario.MVC.Data;
 using Inventario.MVC.DTOs;
+using Inventario.MVC.Filters;
 using Inventario.MVC.Interfaces;
 using Inventario.MVC.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -91,24 +92,9 @@ public class ProductosController : Controller
     });
   }
 
+  [ServiceFilter(typeof(FiltroValidacionModelos))]
   public async Task<IActionResult> CreateProduct(ProductoCreateDTO productoCreateDTO)
   {
-    if (!ModelState.IsValid) {
-        var errors = ModelState
-          .Where(m => m.Value.Errors.Any())
-          .Select(m => new {
-            Field = m.Key,
-            Messages = m.Value.Errors.Select(e => e.ErrorMessage)
-          })
-          .ToList();
-        
-        return BadRequest(new ApiResponse<object> {
-          Success = false,
-          Message = "Complete los campos requeridos",
-          Data = errors
-        });
-    }
-
     bool alreadyExist = await _productoRepo.ExistProductByBarcode(productoCreateDTO.CodigoBarra);
 
     if (alreadyExist){
@@ -139,24 +125,9 @@ public class ProductosController : Controller
     });
   }
 
+  [ServiceFilter(typeof(FiltroValidacionModelos))]
   public async Task<IActionResult> EditProduct([FromRoute] int id, ProductoUpdateDTO productoUpdateDTO)
   {
-     if (!ModelState.IsValid) {
-        var errors = ModelState
-          .Where(m => m.Value.Errors.Any())
-          .Select(m => new {
-            Field = m.Key,
-            Messages = m.Value.Errors.Select(e => e.ErrorMessage)
-          })
-          .ToList();
-        
-        return BadRequest(new ApiResponse<object> {
-          Success = false,
-          Message = "Complete los campos requeridos",
-          Data = errors
-        });
-    }
-
     bool alreadyExist = await _productoRepo.ExistProductByBarcode(productoUpdateDTO.CodigoBarra, id);
 
     if (alreadyExist){
