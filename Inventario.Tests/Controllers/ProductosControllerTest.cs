@@ -1,8 +1,15 @@
 using Inventario.MVC.Controllers;
 using Inventario.MVC.DTOs;
+using Inventario.MVC.Filters;
 using Inventario.MVC.Interfaces;
 using Inventario.MVC.Models;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 
 namespace Inventario.Tests.Controllers;
@@ -98,6 +105,43 @@ public class ProductosControllerTests
     }
 
     [Fact]
+    public async Task FiltroValidacionModelos_ShouldReturnBadRequest_WhenModelStateIsInvalid() {
+        // Arrange
+        var filtro = new FiltroValidacionModelos();
+        var modelState = new ModelStateDictionary();
+        modelState.AddModelError("Nombre", "El nombre es requerido");
+
+        var actionContext = new ActionContext(
+            new DefaultHttpContext(),
+            new Microsoft.AspNetCore.Routing.RouteData(),
+            new ActionDescriptor(),
+            modelState // Aquí se pasa el ModelState directamente
+        );
+
+        var context = new ActionExecutingContext(
+            actionContext,
+            new List<IFilterMetadata>(),
+            new Dictionary<string, object>(),
+            controller: null
+        );
+
+        var next = new ActionExecutionDelegate(() => Task.FromResult(new ActionExecutedContext(actionContext, new List<IFilterMetadata>(), controller: null)));
+
+        // Act
+        await filtro.OnActionExecutionAsync(context, next);
+
+        // Assert
+        var result = Assert.IsType<BadRequestObjectResult>(context.Result);
+        var response = Assert.IsType<ApiResponse<object>>(result.Value);
+
+        Assert.False(response.Success);
+        Assert.Equal("Complete los campos requeridos", response.Message);
+
+        var errors = response.Data as IEnumerable<object>;
+        Assert.NotEmpty(errors);
+    }
+
+    [Fact]
     public async Task CreateProduct_ShouldReturnCreatedResponse_WhenProductIsSaved()
     {
         // Arrange
@@ -131,34 +175,6 @@ public class ProductosControllerTests
         _productoRepoMock.Verify(r => r.ExistProductByBarcode(productoCreateDTO.CodigoBarra, null), Times.Once);
         _productoRepoMock.Verify(r => r.CreateProduct(newProducto), Times.Once);
         _productoMapperMock.Verify(m => m.Map(productoCreateDTO), Times.Once);
-    }
-
-    [Fact]
-    public async Task CreateProducto_ShouldReturnBadRequestResponse_WhenRequiredFields (){
-        // Arrange
-        // ProductoCreateDTO productoToCreateWithMissingProps = new (){ Cantidad = 2, Nombre = "Fake" };
-        
-        var controller =  new ProductosController(
-            _productoRepoMock.Object,
-            _productoMapperMock.Object,
-            _categoriaRepoMock.Object
-        );
-        // Simular error de validación en ModelState
-        controller.ModelState.AddModelError("CategoriaID", "La categoria es requerida");
-        
-        // Act
-        // No es necesario que el DTO tenga datos válidos porque el foco está en el error del ModelState
-        var result = await controller.CreateProduct(new ProductoCreateDTO {});
-
-        // Assert
-        var actionResult = Assert.IsType<BadRequestObjectResult>(result);
-        var response = Assert.IsType<ApiResponse<object>>(actionResult.Value);
-        
-        Assert.False(response.Success);
-        Assert.NotNull(response.Data);
-        
-        var errors = response.Data as IEnumerable<object>;
-        Assert.NotEmpty(errors);
     }
 
     [Fact]
