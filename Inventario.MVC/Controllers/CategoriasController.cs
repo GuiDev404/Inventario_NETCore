@@ -8,12 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 namespace Inventario.MVC.Controllers;
 
 public class CategoriasController : Controller {
+    private readonly ApplicationDbContext _context;
     private readonly ICategoriaRepository _categoriaRepository;
     private readonly ICategoriaMapper _categoriaMapper;
 
-    public CategoriasController(ICategoriaRepository categoriaRepository, ICategoriaMapper categoriaMapper) {
-      _categoriaRepository = categoriaRepository;
-      _categoriaMapper = categoriaMapper;
+    public CategoriasController(ICategoriaRepository categoriaRepository, ICategoriaMapper categoriaMapper, ApplicationDbContext context)
+    {
+        _categoriaRepository = categoriaRepository;
+        _categoriaMapper = categoriaMapper;
+        _context = context;
     }
 
     public IActionResult Index() {
@@ -83,7 +86,7 @@ public class CategoriasController : Controller {
       });
     }
 
-    [ServiceFilter(typeof(FiltroValidacionModelos))]
+    // [ServiceFilter(typeof(FiltroValidacionModelos))]
     public async Task<IActionResult> EditCategoria(int id, CategoriaUpdateDTO categoriaUpdateDTO) {
 
       bool alreadyExist = await _categoriaRepository.ExistCategoryByName(categoriaUpdateDTO.Nombre, id);
@@ -105,14 +108,18 @@ public class CategoriasController : Controller {
       }
 
       _categoriaMapper.Map(categoriaFound, categoriaUpdateDTO);
-      bool saved = await _categoriaRepository.UpdateCategory(categoriaFound);
-    
-      if (!saved) {
-        return BadRequest(new ApiResponse<CategoriaDTO?>() { 
-          Success = false,
-          Message = "No se pudo editar la categoria",
-        });
-      }
+      
+      // Para que llegue la exception, en este caso categoria esta vacio
+      _context.Categorias.Update(categoriaFound);
+      await _context.SaveChangesAsync();
+
+      // bool saved = await _categoriaRepository.UpdateCategory(categoriaFound);
+      // if (!saved) {
+      //   return BadRequest(new ApiResponse<CategoriaDTO?>() { 
+      //     Success = false,
+      //     Message = "No se pudo editar la categoria",
+      //   });
+      // }
 
       return Ok(new ApiResponse<CategoriaDTO?>() { 
         Success = true,

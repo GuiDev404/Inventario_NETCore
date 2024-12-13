@@ -5,6 +5,7 @@ using Inventario.MVC.Interfaces;
 using Inventario.MVC.Mappers;
 using Inventario.MVC.Repository;
 using Inventario.MVC.Filters;
+using Inventario.MVC.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,8 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseRouting();
 
 app.UseAuthorization();
@@ -53,5 +56,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
 
 app.Run();
