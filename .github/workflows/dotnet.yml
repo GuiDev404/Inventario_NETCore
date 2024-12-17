@@ -1,0 +1,44 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  BUILD_CONFIG: 'Release'
+  SOLUTION: 'InventarioSolution.sln'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configuracion .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restaurar dependencies 📂
+      run: dotnet restore $SOLUTION
+      
+    - name: Build 🧱
+      run: dotnet build ${{ env.SOLUTION }} --no-restore --configuration ${{ env.BUILD_CONFIG }}
+      
+    - name: Test 🧪
+      run: dotnet test ${{ env.SOLUTION }}  --configuration ${{ env.BUILD_CONFIG }} --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+    - name: Publicar resultados de test
+      if: always() # Asegura que este paso se ejecute incluso si los tests fallan.
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: '**/*.trx'
